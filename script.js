@@ -4,141 +4,136 @@ proj4.defs(
   "+proj=utm +zone=43 +datum=WGS84 +units=m +no_defs"
 );
 
-
 const loader = document.getElementById("loader");
-loader.style.display = "flex"; 
+const loaderr = document.getElementById("loaderr");
+const searchInput = document.getElementById("search-input");
+const searchButton = document.getElementById("search-button");
 
-
-const map = L.map("map").setView([31.4181, 72.9947], 13); // Faisalabad coordinates
-
+// Initialize map
+const map = L.map("map").setView([31.4181, 72.9947], 13);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-// Style for Faisalabad boundary
-const faisalabadBoundaryStyle = {
-  color: "red", // Boundary color
-  weight: 3, // Boundary thickness
-  fillColor: "yellow", // Fill color
-  fillOpacity: 0.3, // Transparency of the fill
-};
-
-// Style for Faisalabad city boundary (highlight)
-const faisalabadCityStyle = {
-  color: "blue", // Boundary color
-  weight: 5, // Boundary thickness
-  fillColor: "transparent", // No fill
-  fillOpacity: 0, // No fill
-};
-
-
-fetch("faisalabad-boundary.geojson")
-  .then((response) => response.json())
-  .then((geojson) => {
-    
-    L.geoJSON(geojson, { style: faisalabadBoundaryStyle }).addTo(map);
-  })
-  .catch((error) => {
-    console.error("Error loading Faisalabad boundary GeoJSON:", error);
-  });
-
-
-fetch("faisalabad-city-boundary.geojson")
-  .then((response) => response.json())
-  .then((geojson) => {
-    
-    L.geoJSON(geojson, { style: faisalabadCityStyle }).addTo(map);
-  })
-  .catch((error) => {
-    console.error("Error loading Faisalabad city boundary GeoJSON:", error);
-  });
-
-
-function addMarkers(data, searchQuery = "") {
-  const bounds = []; 
-  
-  map.eachLayer(function(layer) {
-    if (layer instanceof L.Marker) {
-      map.removeLayer(layer);
-    }
-  });
-
-  data.features.forEach((feature) => {
-    let { coordinates } = feature.geometry;
-
-    
-    if (coordinates.length === 2 && Math.abs(coordinates[0]) > 100) {
-      coordinates = proj4("EPSG:32643", "EPSG:4326", coordinates);
-    }
-
-    if (coordinates && coordinates.length === 2) {
-      const [lon, lat] = coordinates; 
-
-      const { Buyer_Name, CNIC, Address, Plot_Size, Block, TYPE } = feature.properties;
-
-      
-      if (
-        searchQuery &&
-        !(
-          (Buyer_Name && Buyer_Name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (CNIC && CNIC.includes(searchQuery))
-        )
-      ) {
-        return;
-      }
-
-      const marker = L.marker([lat, lon]).addTo(map);
-      marker.bindPopup(`
-        <strong>Buyer Name:</strong> ${Buyer_Name} <br />
-        <strong>CNIC:</strong> ${CNIC} <br />
-        <strong>Address:</strong> ${Address} <br />
-        <strong>Plot Size:</strong> ${Plot_Size} <br />
-        <strong>Block:</strong> ${Block} <br />
-        <strong>Type:</strong> ${TYPE}
-      `);
-
-      bounds.push([lat, lon]); 
-    }
-  });
-
-  
-  if (bounds.length > 0) {
-    map.fitBounds(bounds); 
-  } else {
-    
-    map.setView([31.4181, 72.9947], 13); 
+// Boundary styles
+const boundaryStyles = {
+  district: {
+    color: "red",
+    weight: 3,
+    fillColor: "yellow",
+    fillOpacity: 0.3
+  },
+  city: {
+    color: "blue",
+    weight: 5,
+    fillColor: "transparent",
+    fillOpacity: 0
   }
+};
+
+
+Promise.all([
+  fetch("faisalabad-boundary.geojson").then(r => r.json()),
+  fetch("faisalabad-city-boundary.geojson").then(r => r.json())
+])
+  .then(([districtData, cityData]) => {
+    L.geoJSON(districtData, { style: boundaryStyles.district }).addTo(map);
+    L.geoJSON(cityData, { style: boundaryStyles.city }).addTo(map);
+  })
+  .catch(error => {
+    console.error("Error loading boundary data:", error);
+  });
+
+
+function handleMarkers(data, searchQuery = "") {
+  const markerLayer = L.layerGroup().addTo(map);
+  const bounds = [];
+
+  data.features.forEach(feature => {
+    let [lon, lat] = feature.geometry.coordinates;
+
+    
+    if (Math.abs(lon) > 100) {
+      [lon, lat] = proj4("EPSG:32643", "EPSG:4326", [lon, lat]);
+    }
+
+    const { Buyer_Name, CNIC, Address, Plot_Size, Block, TYPE } = feature.properties;
+
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      if (!(
+        Buyer_Name?.toLowerCase().includes(query) ||
+        CNIC?.includes(searchQuery)
+      )) return;
+    }
+
+    
+    const marker = L.marker([lat, lon]).addTo(markerLayer);
+    marker.bindPopup(`
+      <div class="popup-content">
+        <h4>${Buyer_Name || 'No Name'}</h4>
+        <p><strong>CNIC:</strong> ${CNIC || 'N/A'}</p>
+        <p><strong>Address:</strong> ${Address || 'N/A'}</p>
+        <p><strong>Plot Size:</strong> ${Plot_Size || 'N/A'}</p>
+        <p><strong>Block:</strong> ${Block || 'N/A'}</p>
+        <p><strong>Type:</strong> ${TYPE || 'N/A'}</p>
+      </div>
+    `);
+
+    bounds.push([lat, lon]);
+  });
+
+  
+  bounds.length > 0 ? map.fitBounds(bounds) : map.setView([31.4181, 72.9947], 13);
 }
 
+
 fetch("data.json")
-  .then((response) => response.json())
-  .then((data) => {
+  .then(response => response.json())
+  .then(data => {
     
     setTimeout(() => {
-      addMarkers(data);
-      loader.style.display = "none"; 
-    }, 3000); 
+      handleMarkers(data);
+      loader.style.display = "none";
+    }, 3000);
 
-    const searchInput = document.getElementById("search-input");
-    let searchTimeout;
+    
+    function performSearch() {
+      
+      loaderr.style.display = "flex";
+      loaderr.style.opacity = "1";
 
+      
+      map.eachLayer(layer => {
+        if (layer instanceof L.LayerGroup) map.removeLayer(layer);
+      });
+
+      
+      setTimeout(() => {
+        handleMarkers(data, searchInput.value.trim());
+        
+        
+        loader.style.opacity = "0";
+        setTimeout(() => {
+          loaderr.style.display = "none";
+        }, 300);
+      }, 500);
+    }
+
+    
+    searchButton.addEventListener("click", performSearch);
+    searchInput.addEventListener("keypress", e => e.key === "Enter" && performSearch());
+    
+    
     searchInput.addEventListener("input", () => {
-      
-      clearTimeout(searchTimeout);
-
-      
-      loader.style.display = "flex";
-
-      
-      searchTimeout = setTimeout(() => {
-        const query = searchInput.value.trim();
-        addMarkers(data, query);
-        loader.style.display = "none"; 
-      }, 1000); 
+      if (searchInput.value.trim() === "") {
+        performSearch();
+      }
     });
   })
-  .catch((error) => {
-    console.error("Error loading marker data:", error);
-    loader.style.display = "none"; 
+  .catch(error => {
+    console.error("Error loading data:", error);
+    loaderr.style.display = "none";
   });
