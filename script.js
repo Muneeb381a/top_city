@@ -1,4 +1,4 @@
-// Define the UTM Zone 43N (EPSG:32643) projection manually
+// Define UTM Zone 43N (EPSG:32643) projection manually
 proj4.defs(
   "EPSG:32643",
   "+proj=utm +zone=43 +datum=WGS84 +units=m +no_defs"
@@ -8,59 +8,58 @@ const loader = document.getElementById("loader");
 const loaderr = document.getElementById("loaderr");
 const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
+const tableBody = document.getElementById("table-body");
+const prevPageBtn = document.getElementById("prevPage");
+const nextPageBtn = document.getElementById("nextPage");
+const pageInfo = document.getElementById("pageInfo");
 
-// Initialize map
+// Get card elements to update plot counts dynamically
+const totalPlotsCard = document.querySelector(".card-1 h4");
+const commercialPlotsCard = document.querySelector(".card-2 h4");
+const residentialPlotsCard = document.querySelector(".card-3 h4");
+
+let currentPage = 1;
+const rowsPerPage = 10;
+let allData = [];
+
+// Initialize the map
 const map = L.map("map").setView([31.4181, 72.9947], 13);
 
+// Add tile layer
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// Boundary styles
-const boundaryStyles = {
-  district: {
-    color: "red",
-    weight: 3,
-    fillColor: "yellow",
-    fillOpacity: 0.3
-  },
-  city: {
-    color: "blue",
-    weight: 5,
-    fillColor: "transparent",
-    fillOpacity: 0
+// Create marker cluster group
+const markers = L.markerClusterGroup();
+
+// Function to handle markers, table, and updating the cards
+function handleMarkersAndTable(data, searchQuery = "") {
+  if (!data.features || !Array.isArray(data.features)) {
+    console.error("Invalid data format");
+    return;
   }
-};
 
+  markers.clearLayers();
+  tableBody.innerHTML = "";
 
-Promise.all([
-  fetch("faisalabad-boundary.geojson").then(r => r.json()),
-  fetch("faisalabad-city-boundary.geojson").then(r => r.json())
-])
-  .then(([districtData, cityData]) => {
-    L.geoJSON(districtData, { style: boundaryStyles.district }).addTo(map);
-    L.geoJSON(cityData, { style: boundaryStyles.city }).addTo(map);
-  })
-  .catch(error => {
-    console.error("Error loading boundary data:", error);
-  });
-
-
-function handleMarkers(data, searchQuery = "") {
-  const markerLayer = L.layerGroup().addTo(map);
-  const bounds = [];
+  let totalPlots = 0;
+  let commercialPlots = 0;
+  let residentialPlots = 0;
+  
+  const filteredData = [];
 
   data.features.forEach(feature => {
     let [lon, lat] = feature.geometry.coordinates;
 
-    
-    if (Math.abs(lon) > 100) {
+    // Convert UTM to WGS84 if necessary
+    if (Math.abs(lon) > 100000) {
       [lon, lat] = proj4("EPSG:32643", "EPSG:4326", [lon, lat]);
     }
 
-    const { Buyer_Name, CNIC, Address, Plot_Size, Block, TYPE } = feature.properties;
+    const { Buyer_Name, CNIC, CONTACT, Address, Plot_Size, Block, TYPE } = feature.properties;
 
-    
+    // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!(
@@ -69,71 +68,202 @@ function handleMarkers(data, searchQuery = "") {
       )) return;
     }
 
-    
-    const marker = L.marker([lat, lon]).addTo(markerLayer);
+    // Count plots based on type
+    totalPlots++;
+    if (TYPE?.toLowerCase() === "commercial") {
+      commercialPlots++;
+    } else if (TYPE?.toLowerCase() === "residential") {
+      residentialPlots++;
+    }
+
+    // Store filtered data for pagination
+    filteredData.push({ Buyer_Name, CNIC, CONTACT, Address, Plot_Size, Block, TYPE, lat, lon });
+
+    // Add marker
+    const marker = L.marker([lat, lon]);
     marker.bindPopup(`
       <div class="popup-content">
-        <h4>${Buyer_Name || 'No Name'}</h4>
-        <p><strong>CNIC:</strong> ${CNIC || 'N/A'}</p>
-        <p><strong>Address:</strong> ${Address || 'N/A'}</p>
-        <p><strong>Plot Size:</strong> ${Plot_Size || 'N/A'}</p>
-        <p><strong>Block:</strong> ${Block || 'N/A'}</p>
-        <p><strong>Type:</strong> ${TYPE || 'N/A'}</p>
+        <h4>${Buyer_Name || "No Name"}</h4>
+        <p><strong>CNIC:</strong> ${CNIC || "N/A"}</p>
+        <p><strong>CONTACT:</strong> ${CONTACT || "N/A"}</p>
+        <p><strong>Address:</strong> ${Address || "N/A"}</p>
+        <p><strong>Plot Size:</strong> ${Plot_Size || "N/A"}</p>
+        <p><strong>Block:</strong> ${Block || "N/A"}</p>
+        <p><strong>Type:</strong> ${TYPE || "N/A"}</p>
       </div>
     `);
-
-    bounds.push([lat, lon]);
+    markers.addLayer(marker);
   });
 
-  
-  bounds.length > 0 ? map.fitBounds(bounds) : map.setView([31.4181, 72.9947], 13);
+  map.addLayer(markers);
+  allData = filteredData;
+  updateTable();
+
+  // Update the plot counts in the cards
+  totalPlotsCard.textContent = totalPlots;
+  commercialPlotsCard.textContent = commercialPlots;
+  residentialPlotsCard.textContent = residentialPlots;
 }
 
+// Function to update table with pagination
+function updateTable() {
+  tableBody.innerHTML = "";
+  const start = (currentPage - 1) * rowsPerPage;
+  const paginatedData = allData.slice(start, start + rowsPerPage);
+
+  paginatedData.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.Buyer_Name || "N/A"}</td>
+      <td>${item.CNIC || "N/A"}</td>
+      <td>${item.CONTACT || "N/A"}</td>
+      <td>${item.Address || "N/A"}</td>
+      <td>${item.Plot_Size || "N/A"}</td>
+      <td>${item.Block || "N/A"}</td>
+      <td>${item.TYPE || "N/A"}</td>
+    `;
+    
+    row.dataset.lat = item.lat;
+    row.dataset.lon = item.lon;
+    
+    row.addEventListener("click", function () {
+      const lat = parseFloat(this.dataset.lat);
+      const lon = parseFloat(this.dataset.lon);
+      if (!isNaN(lat) && !isNaN(lon)) {
+        map.setView([lat, lon], 17);
+      }
+    });
+
+    tableBody.appendChild(row);
+  });
+
+  pageInfo.textContent = `Page ${currentPage}`;
+  prevPageBtn.disabled = currentPage === 1;
+  nextPageBtn.disabled = start + rowsPerPage >= allData.length;
+}
+
+prevPageBtn.addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    updateTable();
+  }
+});
+
+nextPageBtn.addEventListener("click", () => {
+  if ((currentPage * rowsPerPage) < allData.length) {
+    currentPage++;
+    updateTable();
+  }
+});
 
 fetch("data.json")
   .then(response => response.json())
   .then(data => {
-    
     setTimeout(() => {
-      handleMarkers(data);
+      handleMarkersAndTable(data);
       loader.style.display = "none";
     }, 3000);
 
-    
     function performSearch() {
-      
       loaderr.style.display = "flex";
       loaderr.style.opacity = "1";
+      markers.clearLayers();
 
-      
-      map.eachLayer(layer => {
-        if (layer instanceof L.LayerGroup) map.removeLayer(layer);
-      });
-
-      
       setTimeout(() => {
-        handleMarkers(data, searchInput.value.trim());
-        
-        
-        loader.style.opacity = "0";
-        setTimeout(() => {
-          loaderr.style.display = "none";
-        }, 300);
+        handleMarkersAndTable(data, searchInput.value.trim());
+        loaderr.style.display = "none";
       }, 500);
     }
 
-    
     searchButton.addEventListener("click", performSearch);
     searchInput.addEventListener("keypress", e => e.key === "Enter" && performSearch());
-    
-    
     searchInput.addEventListener("input", () => {
-      if (searchInput.value.trim() === "") {
-        performSearch();
-      }
+      if (searchInput.value.trim() === "") performSearch();
     });
   })
   .catch(error => {
     console.error("Error loading data:", error);
     loaderr.style.display = "none";
   });
+
+
+  // Get references to the elements where current time and location will be displayed
+const currentTimeElement = document.getElementById("current-time");
+const currentLocationElement = document.getElementById("current-location");
+
+// Function to update the current time
+function updateCurrentTime() {
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  
+  const timeString = `${hours}:${minutes}:${seconds}`;
+  currentTimeElement.textContent = `Time: ${timeString}`;
+}
+
+// Function to fetch and display the current location using Geolocation API
+function updateCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const latitude = position.coords.latitude.toFixed(4);
+        const longitude = position.coords.longitude.toFixed(4);
+        currentLocationElement.textContent = `Current Location: Latitude: ${latitude}, Longitude: ${longitude}`;
+      },
+      error => {
+        currentLocationElement.textContent = "Error fetching location";
+      }
+    );
+  } else {
+    currentLocationElement.textContent = "Geolocation is not supported by this browser.";
+  }
+}
+
+// Update the current time every second
+setInterval(updateCurrentTime, 1000);
+
+// Call the function to update location once the page loads
+updateCurrentLocation();
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const particleContainer = document.createElement('div');
+  particleContainer.className = 'particles';
+  document.body.appendChild(particleContainer);
+
+  const createParticle = () => {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    // Random direction variables
+    const dx = Math.random() > 0.5 ? 1 : -1;
+    const dy = Math.random() > 0.5 ? 1 : -1;
+
+    // Calculate random starting and ending positions
+    const startX = Math.random() * 100; // Start position in percentage
+    const startY = Math.random() * 100; // Start position in percentage
+    const endX = startX + (Math.random() * 50 * dx); // End position, random offset from start
+    const endY = startY + (Math.random() * 50 * dy); // End position, random offset from start
+    
+    particle.style.cssText = `
+      --start-x: ${startX}vw;
+      --start-y: ${startY}vh;
+      --end-x: ${endX}vw;
+      --end-y: ${endY}vh;
+      left: ${startX}vw;
+      top: ${startY}vh;
+      width: ${Math.random() * 20 + 5}px;
+      height: ${Math.random() * 20 + 5}px;
+      animation-duration: ${Math.random() * 15 + 10}s;
+      animation-delay: ${Math.random() * 10}s;
+    `;
+    
+    particleContainer.appendChild(particle);
+  };
+
+  // Create particles with staggered initialization
+  for (let i = 0; i < 50; i++) {
+    setTimeout(createParticle, i * 150);
+  }
+});
