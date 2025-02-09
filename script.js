@@ -23,12 +23,27 @@ const rowsPerPage = 10;
 let allData = [];
 
 // Initialize the map
-const map = L.map("map").setView([31.4181, 72.9947], 13);
+const map = L.map("map").setView([31.4181, 72.9947], 5);
 
 // Add tile layer
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
+
+// Custom icons for different plot types
+const commercialIcon = L.icon({
+  iconUrl: "https://www.iconarchive.com/download/i57835/icons-land/vista-map-markers/Map-Marker-Marker-Outside-Pink.256.png", // Commercial marker
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+const residentialIcon = L.icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/1673/1673221.png", // Residential marker
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
 
 // Create marker cluster group
 const markers = L.markerClusterGroup();
@@ -46,7 +61,7 @@ function handleMarkersAndTable(data, searchQuery = "") {
   let totalPlots = 0;
   let commercialPlots = 0;
   let residentialPlots = 0;
-  
+
   const filteredData = [];
 
   data.features.forEach(feature => {
@@ -70,17 +85,21 @@ function handleMarkersAndTable(data, searchQuery = "") {
 
     // Count plots based on type
     totalPlots++;
+    let markerIcon = null;
+
     if (TYPE?.toLowerCase() === "commercial") {
       commercialPlots++;
+      markerIcon = commercialIcon;
     } else if (TYPE?.toLowerCase() === "residential") {
       residentialPlots++;
+      markerIcon = residentialIcon;
     }
 
     // Store filtered data for pagination
     filteredData.push({ Buyer_Name, CNIC, CONTACT, Address, Plot_Size, Block, TYPE, lat, lon });
 
-    // Add marker
-    const marker = L.marker([lat, lon]);
+    // Add marker with different icons
+    const marker = L.marker([lat, lon], { icon: markerIcon });
     marker.bindPopup(`
       <div class="popup-content">
         <h4>${Buyer_Name || "No Name"}</h4>
@@ -122,10 +141,10 @@ function updateTable() {
       <td>${item.Block || "N/A"}</td>
       <td>${item.TYPE || "N/A"}</td>
     `;
-    
+
     row.dataset.lat = item.lat;
     row.dataset.lon = item.lon;
-    
+
     row.addEventListener("click", function () {
       const lat = parseFloat(this.dataset.lat);
       const lon = parseFloat(this.dataset.lon);
@@ -187,83 +206,43 @@ fetch("data.json")
   });
 
 
-  // Get references to the elements where current time and location will be displayed
-// const currentTimeElement = document.getElementById("current-time");
-// const currentLocationElement = document.getElementById("current-location");
-
-// // Function to update the current time
-// function updateCurrentTime() {
-//   const now = new Date();
-//   const hours = now.getHours().toString().padStart(2, '0');
-//   const minutes = now.getMinutes().toString().padStart(2, '0');
-//   const seconds = now.getSeconds().toString().padStart(2, '0');
+  document.addEventListener('DOMContentLoaded', () => {
+    const particleContainer = document.createElement('div');
+    particleContainer.className = 'particles';
+    document.body.appendChild(particleContainer);
   
-//   const timeString = `${hours}:${minutes}:${seconds}`;
-//   currentTimeElement.textContent = `Time: ${timeString}`;
-// }
-
-// // Function to fetch and display the current location using Geolocation API
-// function updateCurrentLocation() {
-//   if (navigator.geolocation) {
-//     navigator.geolocation.getCurrentPosition(
-//       position => {
-//         const latitude = position.coords.latitude.toFixed(4);
-//         const longitude = position.coords.longitude.toFixed(4);
-//         currentLocationElement.textContent = `Current Location: Latitude: ${latitude}, Longitude: ${longitude}`;
-//       },
-//       error => {
-//         currentLocationElement.textContent = "Error fetching location";
-//       }
-//     );
-//   } else {
-//     currentLocationElement.textContent = "Geolocation is not supported by this browser.";
-//   }
-// }
-
-// // Update the current time every second
-// setInterval(updateCurrentTime, 1000);
-
-// // Call the function to update location once the page loads
-// updateCurrentLocation();
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const particleContainer = document.createElement('div');
-  particleContainer.className = 'particles';
-  document.body.appendChild(particleContainer);
-
-  const createParticle = () => {
-    const particle = document.createElement('div');
-    particle.className = 'particle';
-    
-    // Random direction variables
-    const dx = Math.random() > 0.5 ? 1 : -1;
-    const dy = Math.random() > 0.5 ? 1 : -1;
-
-    // Calculate random starting and ending positions
-    const startX = Math.random() * 100; // Start position in percentage
-    const startY = Math.random() * 100; // Start position in percentage
-    const endX = startX + (Math.random() * 50 * dx); // End position, random offset from start
-    const endY = startY + (Math.random() * 50 * dy); // End position, random offset from start
-    
-    particle.style.cssText = `
-      --start-x: ${startX}vw;
-      --start-y: ${startY}vh;
-      --end-x: ${endX}vw;
-      --end-y: ${endY}vh;
-      left: ${startX}vw;
-      top: ${startY}vh;
-      width: ${Math.random() * 20 + 5}px;
-      height: ${Math.random() * 20 + 5}px;
-      animation-duration: ${Math.random() * 15 + 10}s;
-      animation-delay: ${Math.random() * 10}s;
-    `;
-    
-    particleContainer.appendChild(particle);
-  };
-
-  // Create particles with staggered initialization
-  for (let i = 0; i < 50; i++) {
-    setTimeout(createParticle, i * 150);
-  }
-});
+    const createParticle = () => {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      // Random direction variables
+      const dx = Math.random() > 0.5 ? 1 : -1;
+      const dy = Math.random() > 0.5 ? 1 : -1;
+  
+      // Calculate random starting and ending positions
+      const startX = Math.random() * 100; // Start position in percentage
+      const startY = Math.random() * 100; // Start position in percentage
+      const endX = startX + (Math.random() * 50 * dx); // End position, random offset from start
+      const endY = startY + (Math.random() * 50 * dy); // End position, random offset from start
+      
+      particle.style.cssText = `
+        --start-x: ${startX}vw;
+        --start-y: ${startY}vh;
+        --end-x: ${endX}vw;
+        --end-y: ${endY}vh;
+        left: ${startX}vw;
+        top: ${startY}vh;
+        width: ${Math.random() * 20 + 5}px;
+        height: ${Math.random() * 20 + 5}px;
+        animation-duration: ${Math.random() * 15 + 10}s;
+        animation-delay: ${Math.random() * 10}s;
+      `;
+      
+      particleContainer.appendChild(particle);
+    };
+  
+    // Create particles with staggered initialization
+    for (let i = 0; i < 50; i++) {
+      setTimeout(createParticle, i * 150);
+    }
+  });

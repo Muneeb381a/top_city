@@ -272,24 +272,6 @@ body::after {
   color: var(--primary);
   font-weight: 700;
 }
-
-/* .container-1 {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.info-box {
-  background: var(--card-bg);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  text-align: center;
-  min-width: 280px;
-  transition: transform 0.3s ease;
-} */
 .search-container {
   display: flex;
   gap: 1rem;
@@ -445,7 +427,6 @@ body::after {
   padding: 0 1rem;
   max-width: 1200px;
 }
-
 .table-container {
   overflow-x: auto;
   background: var(--card-bg);
@@ -525,18 +506,56 @@ tr:nth-child(even) td {
 }
 
 @media (max-width: 480px) {
+  .table-container {
+    border-radius: 0.8rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+  }
+
   table {
-    min-width: 600px;
+    min-width: 100%;
+  }
+
+  th, td {
+    padding: 0.6rem;
+    font-size: 0.7em;
+  }
+
+  th {
+    padding: 0.6rem 0.4rem;
+    font-weight: 500;
+  }
+  td:nth-child(3), /* CONTACT */
+  td:nth-child(4) { /* Address */
+    display: none;
   }
   
-  th, td {
-    padding: 0.8rem;
-    font-size: 0.85em;
+  th:nth-child(3),
+  th:nth-child(4) {
+    display: none;
   }
 }
+
+/* Add scroll hint for mobile */
 .table-container::-webkit-scrollbar {
-  height: 8px;
-  background: rgba(224, 231, 255, 0.2);
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
+}
+
+.table-container::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 100%);
+  pointer-events: none;
 }
 
 .table-container::-webkit-scrollbar-thumb {
@@ -556,13 +575,16 @@ tr {
 tr:hover {
   animation: rowHover 0.4s ease forwards;
 }
-
 #map {
-  height: 500px;
+  height: 80vh; 
   width: 100%;
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
+  border-radius: 12px; 
+  box-shadow: var(--shadow); 
+  border: 2px solid var(--primary);
+  transition: all 0.3s ease-in-out;
 }
+
+
 .pagination {
   display: flex;
   justify-content: center;
