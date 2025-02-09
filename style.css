@@ -273,7 +273,7 @@ body::after {
   font-weight: 700;
 }
 
-.container-1 {
+/* .container-1 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -289,7 +289,7 @@ body::after {
   text-align: center;
   min-width: 280px;
   transition: transform 0.3s ease;
-}
+} */
 .search-container {
   display: flex;
   gap: 1rem;

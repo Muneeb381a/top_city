@@ -188,43 +188,43 @@ fetch("data.json")
 
 
   // Get references to the elements where current time and location will be displayed
-const currentTimeElement = document.getElementById("current-time");
-const currentLocationElement = document.getElementById("current-location");
+// const currentTimeElement = document.getElementById("current-time");
+// const currentLocationElement = document.getElementById("current-location");
 
-// Function to update the current time
-function updateCurrentTime() {
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
+// // Function to update the current time
+// function updateCurrentTime() {
+//   const now = new Date();
+//   const hours = now.getHours().toString().padStart(2, '0');
+//   const minutes = now.getMinutes().toString().padStart(2, '0');
+//   const seconds = now.getSeconds().toString().padStart(2, '0');
   
-  const timeString = `${hours}:${minutes}:${seconds}`;
-  currentTimeElement.textContent = `Time: ${timeString}`;
-}
+//   const timeString = `${hours}:${minutes}:${seconds}`;
+//   currentTimeElement.textContent = `Time: ${timeString}`;
+// }
 
-// Function to fetch and display the current location using Geolocation API
-function updateCurrentLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const latitude = position.coords.latitude.toFixed(4);
-        const longitude = position.coords.longitude.toFixed(4);
-        currentLocationElement.textContent = `Current Location: Latitude: ${latitude}, Longitude: ${longitude}`;
-      },
-      error => {
-        currentLocationElement.textContent = "Error fetching location";
-      }
-    );
-  } else {
-    currentLocationElement.textContent = "Geolocation is not supported by this browser.";
-  }
-}
+// // Function to fetch and display the current location using Geolocation API
+// function updateCurrentLocation() {
+//   if (navigator.geolocation) {
+//     navigator.geolocation.getCurrentPosition(
+//       position => {
+//         const latitude = position.coords.latitude.toFixed(4);
+//         const longitude = position.coords.longitude.toFixed(4);
+//         currentLocationElement.textContent = `Current Location: Latitude: ${latitude}, Longitude: ${longitude}`;
+//       },
+//       error => {
+//         currentLocationElement.textContent = "Error fetching location";
+//       }
+//     );
+//   } else {
+//     currentLocationElement.textContent = "Geolocation is not supported by this browser.";
+//   }
+// }
 
-// Update the current time every second
-setInterval(updateCurrentTime, 1000);
+// // Update the current time every second
+// setInterval(updateCurrentTime, 1000);
 
-// Call the function to update location once the page loads
-updateCurrentLocation();
+// // Call the function to update location once the page loads
+// updateCurrentLocation();
 
 
 document.addEventListener('DOMContentLoaded', () => {
