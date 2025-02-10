@@ -7,11 +7,6 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.css" />
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-      <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css">
-      <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css">
-      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
     <div id="loader" class="loader">
@@ -22,59 +17,17 @@
       <div class="loader-spinnerr"></div>
       <p>Searching properties...</p>
     </div>
-    <h4 class="hero-text">Welcome To Top City</h4>
-    <!-- <div class="container-1">
-      <div id="current-time" class="info-box">Loading time...</div>
-      <div id="current-location" class="info-box">Fetching location...</div>
-    </div> -->
-     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search by Name or CNIC" class="search-box" />
-        <button id="search-button">🔍 Search</button>
-     </div>
-    <div class="card-div">
-      <div class="card  card-1">
-        <h2>Total Plots</h2>
-        <h4>699</h4>
-      </div>
-      <div class="card card-2">
-        <h1>Commercial Plots</h1>
-        <h4>20</h4>
-      </div>
-      <div class="card-3">
-        <h1>Residential Plots</h1>
-        <h4>600</h4>
-      </div>
-    </div>
     <div class="controls">
-      <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Buyer Name</th>
-                    <th>CNIC</th>
-                    <th>CONTACT</th>
-                    <th>Address</th>
-                    <th>Plot Size</th>
-                    <th>Block</th>
-                    <th>Type</th>
-                </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-        </table>
-        <div class="pagination">
-            <button id="prevPage">Previous</button>
-            <span id="pageInfo">Page 1</span>
-            <button id="nextPage">Next</button>
-        </div>
+      <h4 class="hero-text">Welcome To Top City</h4>
+      <!-- <button id="toggle-theme" class="btn">Toggle Theme</button> -->
+      <input type="text" id="search-input" placeholder="Search by Name or CNIC" class="search-box" />
+      <button id="search-button">Search</button>
     </div>
     <div id="map"></div>
-    </div>
-  </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
