@@ -8,6 +8,7 @@ const loader = document.getElementById("loader");
 const loaderr = document.getElementById("loaderr");
 const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
+const controls = document.getElementById("controls");
 
 // Initialize map
 const map = L.map("map").setView([31.4181, 72.9947], 13);
@@ -46,34 +47,43 @@ Promise.all([
   });
 
 
+const popupOverlay = document.getElementById("full-screen-popup");
+const popupTitle = document.getElementById("popup-title");
+const popupInfo = document.getElementById("popup-info");
+const closePopup = document.getElementById("close-popup");
+
+function openPopup(title, info) {
+  popupTitle.innerText = title;
+  popupInfo.innerHTML = info;
+  popupOverlay.classList.add("active");
+}
+
+closePopup.addEventListener("click", function () {
+  popupOverlay.classList.remove("active");
+});
+
 function handleMarkers(data, searchQuery = "") {
-  const markerLayer = L.layerGroup().addTo(map);
+  const markerLayer = L.layerGroup();
   const bounds = [];
 
   data.features.forEach(feature => {
     let [lon, lat] = feature.geometry.coordinates;
-
     
     if (Math.abs(lon) > 100) {
       [lon, lat] = proj4("EPSG:32643", "EPSG:4326", [lon, lat]);
     }
 
-    const { Buyer_Name, CNIC,CONTACT, Address,Status, Plot_Size, Block, TYPE,COM_STATUS, COLONY } = feature.properties;
+    const { Buyer_Name, CNIC, CONTACT, Address, Status, Plot_Size, Block, TYPE, COM_STATUS, COLONY } = feature.properties;
 
-    
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      if (!(
-        Buyer_Name?.toLowerCase().includes(query) ||
-        CNIC?.includes(searchQuery)
-      )) return;
+      if (!Buyer_Name?.toLowerCase().includes(query) && !CNIC?.includes(searchQuery)) return;
     }
 
-    
-    const marker = L.marker([lat, lon]).addTo(markerLayer);
-    marker.bindPopup(`
-      <div class="popup-content">
-        <h4>${Buyer_Name || 'No Name'}</h4>
+    const marker = L.marker([lat, lon]);
+
+    marker.on("click", function () {
+      const infoContent = `
         <p><strong>CNIC:</strong> ${CNIC || 'N/A'}</p>
         <p><strong>CONTACT:</strong> ${CONTACT || 'N/A'}</p>
         <p><strong>Address:</strong> ${Address || 'N/A'}</p>
@@ -83,16 +93,23 @@ function handleMarkers(data, searchQuery = "") {
         <p><strong>Type:</strong> ${TYPE || 'N/A'}</p>
         <p><strong>COM_STATUS:</strong> ${COM_STATUS || 'N/A'}</p>
         <p><strong>COLONY:</strong> ${COLONY || 'N/A'}</p>
-      </div>
-    `);
+      `;
 
+      openPopup(Buyer_Name || "No Name", infoContent);
+    });
+
+    markerLayer.addLayer(marker);
     bounds.push([lat, lon]);
   });
 
-  
-  bounds.length > 0 ? map.fitBounds(bounds) : map.setView([31.4181, 72.9947], 13);
-}
+  markerLayer.addTo(map);
 
+  if (bounds.length > 0) {
+    map.fitBounds(bounds);
+  } else {
+    map.setView([31.4181, 72.9947], 13);
+  }
+}
 
 fetch("data.json")
   .then(response => response.json())
@@ -141,3 +158,15 @@ fetch("data.json")
     console.error("Error loading data:", error);
     loaderr.style.display = "none";
   });
+
+  map.on('popupopen', function (e) {
+    let popup = e.popup._container;
+    popup.style.zIndex = "10010"; 
+  });
+  
+
+  marker.on("click", () => {
+    map.setView([lat - 0.003, lon], 16, { animate: true });
+  });
+  
+
