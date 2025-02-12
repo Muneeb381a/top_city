@@ -58,7 +58,7 @@ function handleMarkers(data, searchQuery = "") {
       [lon, lat] = proj4("EPSG:32643", "EPSG:4326", [lon, lat]);
     }
 
-    const { Buyer_Name, CNIC, Address, Plot_Size, Block, TYPE } = feature.properties;
+    const { Buyer_Name, CNIC,CONTACT, Address,Status, Plot_Size, Block, TYPE,COM_STATUS, COLONY } = feature.properties;
 
     
     if (searchQuery) {
@@ -75,10 +75,14 @@ function handleMarkers(data, searchQuery = "") {
       <div class="popup-content">
         <h4>${Buyer_Name || 'No Name'}</h4>
         <p><strong>CNIC:</strong> ${CNIC || 'N/A'}</p>
+        <p><strong>CONTACT:</strong> ${CONTACT || 'N/A'}</p>
         <p><strong>Address:</strong> ${Address || 'N/A'}</p>
+        <p><strong>Status:</strong> ${Status || 'N/A'}</p>
         <p><strong>Plot Size:</strong> ${Plot_Size || 'N/A'}</p>
         <p><strong>Block:</strong> ${Block || 'N/A'}</p>
         <p><strong>Type:</strong> ${TYPE || 'N/A'}</p>
+        <p><strong>COM_STATUS:</strong> ${COM_STATUS || 'N/A'}</p>
+        <p><strong>COLONY:</strong> ${COLONY || 'N/A'}</p>
       </div>
     `);
 
