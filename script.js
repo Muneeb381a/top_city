@@ -46,20 +46,19 @@ Promise.all([
     console.error("Error loading boundary data:", error);
   });
 
+const sidebar = document.getElementById("sidebar");
+const sidebarTitle = document.getElementById("sidebar-title");
+const sidebarInfo = document.getElementById("sidebar-info");
+const closeSidebar = document.getElementById("close-sidebar");
 
-const popupOverlay = document.getElementById("full-screen-popup");
-const popupTitle = document.getElementById("popup-title");
-const popupInfo = document.getElementById("popup-info");
-const closePopup = document.getElementById("close-popup");
-
-function openPopup(title, info) {
-  popupTitle.innerText = title;
-  popupInfo.innerHTML = info;
-  popupOverlay.classList.add("active");
+function openSidebar(title, info) {
+  sidebarTitle.innerText = title;
+  sidebarInfo.innerHTML = info;
+  sidebar.classList.add("active");
 }
 
-closePopup.addEventListener("click", function () {
-  popupOverlay.classList.remove("active");
+closeSidebar.addEventListener("click", function () {
+  sidebar.classList.remove("active");
 });
 
 function handleMarkers(data, searchQuery = "") {
@@ -68,7 +67,6 @@ function handleMarkers(data, searchQuery = "") {
 
   data.features.forEach(feature => {
     let [lon, lat] = feature.geometry.coordinates;
-    
     if (Math.abs(lon) > 100) {
       [lon, lat] = proj4("EPSG:32643", "EPSG:4326", [lon, lat]);
     }
@@ -82,6 +80,7 @@ function handleMarkers(data, searchQuery = "") {
 
     const marker = L.marker([lat, lon]);
 
+    // Detect screen width
     marker.on("click", function () {
       const infoContent = `
         <p><strong>CNIC:</strong> ${CNIC || 'N/A'}</p>
@@ -95,7 +94,11 @@ function handleMarkers(data, searchQuery = "") {
         <p><strong>COLONY:</strong> ${COLONY || 'N/A'}</p>
       `;
 
-      openPopup(Buyer_Name || "No Name", infoContent);
+      if (window.innerWidth <= 468) {
+        openSidebar(Buyer_Name || "No Name", infoContent);
+      } else {
+        marker.bindPopup(`<h4>${Buyer_Name || 'No Name'}</h4>${infoContent}`).openPopup();
+      }
     });
 
     markerLayer.addLayer(marker);
@@ -110,6 +113,7 @@ function handleMarkers(data, searchQuery = "") {
     map.setView([31.4181, 72.9947], 13);
   }
 }
+
 
 fetch("data.json")
   .then(response => response.json())
@@ -169,4 +173,61 @@ fetch("data.json")
     map.setView([lat - 0.003, lon], 16, { animate: true });
   });
   
+const popupOverlay = document.getElementById("full-screen-popup");
+const popupTitle = document.getElementById("popup-title");
+const popupInfo = document.getElementById("popup-info");
+const closePopup = document.getElementById("close-popup");
 
+function openPopup(title, info) {
+  popupTitle.innerText = title;
+  popupInfo.innerText = info;
+  popupOverlay.classList.add("active");
+}
+
+closePopup.addEventListener("click", function () {
+  popupOverlay.classList.remove("active");
+});
+
+const marker = L.marker([31.5204, 74.3587]).addTo(map); 
+
+marker.on("click", function () {
+  openPopup("Property Details", "More information about this location...");
+});
+const searchControls = document.querySelector(".controls");
+
+function openPopup(title, info) {
+  popupOverlay.classList.add("active");
+  searchControls.style.display = "none"; // Hide search box
+}
+
+document.getElementById("close-popup").addEventListener("click", function () {
+  popupOverlay.classList.remove("active");
+  searchControls.style.display = "block"; 
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const popupOverlay = document.querySelector(".popup-overlay");
+  const closePopupButton = document.querySelector("#close-popup");
+  const triggerPopupButton = document.querySelector("#search-button"); 
+
+  function openPopup() {
+      popupOverlay.classList.add("active");
+  }
+  function closePopup() {
+      popupOverlay.classList.remove("active");
+  }
+
+  if (triggerPopupButton) {
+      triggerPopupButton.addEventListener("click", openPopup);
+  }
+
+  if (closePopupButton) {
+      closePopupButton.addEventListener("click", closePopup);
+  }
+
+  popupOverlay.addEventListener("click", (event) => {
+      if (event.target === popupOverlay) {
+          closePopup();
+      }
+  });
+});

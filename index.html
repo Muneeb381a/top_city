@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
   </head>
   <body>
     <div id="loader" class="loader">
@@ -20,17 +22,28 @@
     <div id="map">
       <div class="controls" id="controls">
         <h4 class="hero-text">Welcome To Top City</h4>
-        <input type="text" id="search-input" placeholder="Search by Name or CNIC" class="search-box" />
-        <button id="search-button">Search</button>
+        <div class="search-fields">
+          <input type="text" id="search-input" placeholder="Search by Name or CNIC" class="search-box" />
+          <button id="search-button">
+            <i class="fas fa-search"></i> 
+          </button>
+        </div>        
       </div>
     </div>
     <div id="full-screen-popup" class="popup-overlay">
       <div class="popup-content">
-        <span id="close-popup" class="close-btn">&times;</span>
-        <h2 id="popup-title">Popup Title</h2>
-        <div id="popup-info"></div>
+        <button id="close-popup">&times;</button>
+        <h2 id="popup-title">Property Details</h2>
+        <p id="popup-info">Loading...</p>
       </div>
     </div>
+
+    <div id="sidebar">
+      <button id="close-sidebar">&times;</button>
+      <h4 id="sidebar-title">Property Details</h4>
+      <div id="sidebar-info"></div>
+    </div>
+
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.js"></script>
