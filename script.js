@@ -4,23 +4,53 @@ proj4.defs(
   "+proj=utm +zone=43 +datum=WGS84 +units=m +no_defs"
 );
 
+// Custom 3D markers with different colors
+const markerIcons = {
+  residential: L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    shadowSize: [41, 41],
+    shadowAnchor: [12, 41],
+    popupAnchor: [1, -34]
+  }),
+  commercial: L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    shadowSize: [41, 41],
+    shadowAnchor: [12, 41],
+    popupAnchor: [1, -34]
+  }),
+  mixed: L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    shadowSize: [41, 41],
+    shadowAnchor: [12, 41],
+    popupAnchor: [1, -34]
+  })
+};
+
 const loader = document.getElementById("loader");
 const loaderr = document.getElementById("loaderr");
 const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
 const controls = document.getElementById("controls");
 
-// Initialize map
-// const map = L.map("map").setView([31.4181, 72.9947], 13);
 
-// Initialize map WITHOUT default zoom control
+
+
 const map = L.map("map", {
-  zoomControl: false // Disable default zoom control
+  zoomControl: false 
 }).setView([31.4181, 72.9947], 13);
 
-// Add a zoom control at the bottom-left (change to 'bottomright' if needed)
+
 L.control.zoom({
-  position: "bottomleft" // Move to bottom-right with 'bottomright'
+  position: "bottomleft" 
 }).addTo(map);
 
 
@@ -76,22 +106,58 @@ function handleMarkers(data, searchQuery = "") {
   const markerLayer = L.layerGroup();
   const bounds = [];
 
+  if (map.legend) {
+    map.legend.remove();
+  }
+
+  // Add legend outside the loop
+  const legend = L.control({ position: 'bottomright' });
+  legend.onAdd = () => {
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `
+      <h4>Property Types</h4>
+      <div class="legend-item">
+        <div class="legend-marker legend-residential"></div>
+        <p>Resedential Plots</p>
+      </div>
+      <div class="legend-item">
+        <div class="legend-marker legend-commercial"></div>
+        <p>Commercial Plots</p>
+      </div>
+      <div class="legend-item">
+        <div class="legend-marker legend-mixed"></div>
+        <p>Resedential & Commercial</p>
+      </div>
+    `;
+    return div;
+  };
+  legend.addTo(map);
+  map.legend = legend;
+
   data.features.forEach(feature => {
     let [lon, lat] = feature.geometry.coordinates;
     if (Math.abs(lon) > 100) {
       [lon, lat] = proj4("EPSG:32643", "EPSG:4326", [lon, lat]);
     }
 
-    const { Buyer_Name, CNIC, CONTACT, Address, Status, Plot_Size, Block, TYPE, COM_STATUS, COLONY } = feature.properties;
+    const properties = feature.properties || {};
+    const { Buyer_Name, CNIC, CONTACT, Address, Status, Plot_Size, Block, TYPE, COM_STATUS, COLONY } = properties;
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!Buyer_Name?.toLowerCase().includes(query) && !CNIC?.includes(searchQuery)) return;
     }
 
-    const marker = L.marker([lat, lon]);
+    const propType = (TYPE || '').toLowerCase().trim();
+    let icon = markerIcons.residential;
+    if (propType.includes('commercial') && propType.includes('residential')) {
+      icon = markerIcons.mixed;
+    } else if (propType.includes('commercial')) {
+      icon = markerIcons.commercial;
+    }
 
-    // Detect screen width
+    const marker = L.marker([lat, lon], { icon });
+
     marker.on("click", function () {
       const infoContent = `
         <p><strong>CNIC:</strong> ${CNIC || 'N/A'}</p>
@@ -124,7 +190,6 @@ function handleMarkers(data, searchQuery = "") {
     map.setView([31.4181, 72.9947], 13);
   }
 }
-
 
 fetch("data.json")
   .then(response => response.json())
@@ -242,4 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
   });
 });
+
+
 
