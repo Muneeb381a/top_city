@@ -11,7 +11,18 @@ const searchButton = document.getElementById("search-button");
 const controls = document.getElementById("controls");
 
 // Initialize map
-const map = L.map("map").setView([31.4181, 72.9947], 13);
+// const map = L.map("map").setView([31.4181, 72.9947], 13);
+
+// Initialize map WITHOUT default zoom control
+const map = L.map("map", {
+  zoomControl: false // Disable default zoom control
+}).setView([31.4181, 72.9947], 13);
+
+// Add a zoom control at the bottom-left (change to 'bottomright' if needed)
+L.control.zoom({
+  position: "bottomleft" // Move to bottom-right with 'bottomright'
+}).addTo(map);
+
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -231,3 +242,4 @@ document.addEventListener("DOMContentLoaded", () => {
       }
   });
 });
+

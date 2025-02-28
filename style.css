@@ -131,8 +131,8 @@ body {
 .controls {
   position: fixed;
   top: 10px; 
-  left: 15%;
-  transform: translateX(-50%);
+  left: 20px;  /* Moves it to the left side */
+  transform: none; /* Remove centering */
   background: rgba(255, 255, 255, 0.9);
   padding: 20px;
   border-radius: 15px;
@@ -432,4 +432,12 @@ body {
 
 .sidebar-open {
   right: 0;
+}
+
+
+leaflet-control-zoom {
+  position: absolute !important;
+  bottom: 20px !important;
+  left: 20px !important; 
+  z-index: 1000; 
 }
