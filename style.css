@@ -374,6 +374,10 @@ body {
   #sidebar {
     display: none; 
   }
+
+  .leaflet-control-zoom {
+    display: none !important;
+  }
 }
 
 #sidebar {
@@ -435,12 +439,10 @@ body {
 }
 
 
-leaflet-control-zoom {
-  position: absolute !important;
-  bottom: 20px !important;
-  left: 20px !important; 
-  z-index: 1000; 
+.leaflet-control-zoom {
+  display: none !important;
 }
+
 
 .custom-marker {
   font-size: 24px;
