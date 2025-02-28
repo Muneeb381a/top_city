@@ -130,8 +130,8 @@ body {
 /* Controls Styles */
 .controls {
   position: fixed;
-  top: 20px;  /* Keeps it at the top */
-  left: 50%;
+  top: 10px; 
+  left: 15%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.9);
   padding: 20px;
