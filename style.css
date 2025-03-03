@@ -558,7 +558,6 @@ body {
   z-index: 1000;
   padding: 20px;
   overflow-y: auto;
-  border: 1px solid #ccc;
   background: none;
 }
 
