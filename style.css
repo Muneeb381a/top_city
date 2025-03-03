@@ -546,3 +546,129 @@ body {
 }
 
 
+#full-screen-popup {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 450px;
+  max-height: 90vh; /* Prevents overflow */
+  z-index: 1000;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  background: none;
+  overflow-y: auto; /* Ensures popup scrolls internally */
+}
+
+/* Popup Content */
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+  max-height: 85vh; /* Ensures internal scrolling */
+  overflow-y: auto;
+}
+
+/* Table Container */
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  overflow-x: hidden; /* No horizontal scroll */
+}
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  max-width: 100%;
+}
+
+/* Table Header */
+th {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: white;
+  font-weight: bold;
+  padding: 14px;
+  text-align: left;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+/* Table Data */
+td {
+  padding: 14px;
+  border-bottom: 1px solid #ddd;
+  font-size: 15px;
+  color: #333;
+}
+
+/* Alternating Row Colors */
+tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* Hover Effect */
+tr:hover {
+  background-color: #ecf0f1;
+  transition: background 0.3s ease-in-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .table-wrapper {
+    padding: 5px;
+    box-shadow: none;
+  }
+
+  th, td {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 468px) {
+  .table-wrapper {
+    padding: 5px;
+  }
+
+  th, td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  table {
+    font-size: 11px;
+  }
+}
+
+/* Prevent Background Scrolling */
+body.popup-open {
+  overflow: hidden;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
