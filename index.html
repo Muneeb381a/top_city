@@ -1,53 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Top City Faisalabad, Pakistan</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  </head>
-  <body>
-    <div id="loader" class="loader">
-      <div class="loader-spinner"></div>
-      <p>Welcome to Top City...</p>
-    </div>
-    <div id="loaderr">
-      <div class="loader-spinnerr"></div>
-      <p>Searching properties...</p>
-    </div>
-    <div id="map">
-      <div class="controls" id="controls">
-        <h4 class="hero-text">Welcome To Top City</h4>
-        <div class="search-fields">
-          <input type="text" id="search-input" placeholder="Search by Name or CNIC" class="search-box" />
-          <button id="search-button">
-            <i class="fas fa-search"></i> 
-          </button>
-        </div>        
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top City Faisalabad, Pakistan</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div id="loader" class="loader">
+    <div class="loader-spinner"></div>
+    <p>Welcome to Top City...</p>
+  </div>
+  <div id="loaderr">
+    <div class="loader-spinnerr"></div>
+    <p>Searching properties...</p>
+  </div>
+  <div id="map">
+    <div class="controls" id="controls">
+      <h4 class="hero-text">Welcome To Top City</h4>
+      <div class="search-fields">
+        <input type="text" id="search-input" placeholder="Search by Name or CNIC" class="search-box" />
+        <button id="search-button">
+          <i class="fas fa-search"></i>
+        </button>
       </div>
+      <button id="logout-button">Logout</button>
     </div>
-    <div id="full-screen-popup" class="popup-overlay">
-      <div class="popup-content">
-        <button id="close-popup">&times;</button>
-        <h2 id="popup-title">Property Details</h2>
-        <p id="popup-info">Loading...</p>
-      </div>
+  </div>
+  <div id="full-screen-popup" class="popup-overlay">
+    <div class="popup-content">
+      <button id="close-popup">×</button>
+      <h2 id="popup-title">Property Details</h2>
+      <p id="popup-info">Loading...</p>
     </div>
+  </div>
+  <div id="sidebar">
+    <button id="close-sidebar">×</button>
+    <h4 id="sidebar-title">Property Details</h4>
+    <div id="sidebar-info"></div>
+  </div>
+  <div id="login-container">
+    <h2>Login</h2>
+    <input type="text" id="login-username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button id="login-button">Login</button>
+    <p id="error-message">Invalid credentials. Try again.</p>
+  </div>
 
-    <div id="sidebar">
-      <button id="close-sidebar">&times;</button>
-      <h4 id="sidebar-title">Property Details</h4>
-      <div id="sidebar-info"></div>
-    </div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
-    <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.js"></script>
-    <script src="script.js"></script>
-  </body>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+  <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
