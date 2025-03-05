@@ -178,9 +178,6 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  top: 10px; 
-  left: 20px;  /* Moves it to the left side */
-  transform: none; /* Remove centering */
   background: rgba(255, 255, 255, 0.9);
   padding: 20px;
   border-radius: 15px;
@@ -188,6 +185,7 @@ body::before {
   z-index: 999; 
   max-width: 300px;
   backdrop-filter: blur(5px);
+  margin: 10px 10px;
 }
 
 
@@ -599,6 +597,11 @@ table {
   }
 
   #controls {
+      left: 50%;
+      transform: translate(-50%);
+      bottom: auto;
+      right: auto;
+      margin: 20px 0; 
     width: 90%;
   }
 
